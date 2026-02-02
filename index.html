@@ -1161,6 +1161,81 @@
         .track-list:hover::-webkit-scrollbar {
             opacity: 1;
         }
+
+/* Styling Folder Chips ala iOS */
+.folder-chip {
+    padding: 10px 18px;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border-radius: 14px; /* iOS standard radius */
+    border: 1px solid var(--border);
+    cursor: pointer;
+    white-space: nowrap;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.25s var(--ease-ios);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: var(--shadow-sm);
+    flex-shrink: 0;
+}
+
+.folder-chip.active {
+    background: var(--c-primary);
+    color: white;
+    border-color: var(--c-primary);
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(156, 175, 136, 0.3);
+}
+
+.folder-chip:active {
+    transform: scale(0.95);
+    opacity: 0.8;
+}
+
+/* Memperhalus scroll horizontal folder */
+#folderContainer {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE 10+ */
+    padding-bottom: 5px;
+}
+
+#folderContainer::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+}
+        
+.track-list {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 120px; /* Ruang agar tidak tertutup mini player */
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Modal Pemindah Folder */
+.folder-select-item {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.folder-select-item:active {
+    transform: scale(0.98);
+    background: var(--bg-press);
+}
+
+.folder-select-item i {
+    font-size: 20px;
+    margin-right: 12px;
+    color: var(--c-primary);
+}
+
     </style>
 </head>
 
@@ -1360,6 +1435,16 @@
             </div>
         </div>
 
+<div id="moveFolderModal" class="player-modal" style="height: auto; max-height: 70vh; bottom: 0; top: auto; border-radius: 24px 24px 0 0; z-index: 4000;">
+    <div class="modal-header">
+        <div class="modal-title">Pindahkan ke Folder</div>
+        <button class="icon-btn modal-close" id="closeMoveModalBtn">
+            <i class="ph ph-x"></i>
+        </button>
+    </div>
+    <div class="modal-content" id="folderSelectList" style="padding: 20px; overflow-y: auto;">
+        </div>
+</div>
 
         <!-- Hidden YouTube Player -->
         <div id="yt-player" style="position: absolute; top: -9999px; left: -9999px;"></div>
@@ -1394,8 +1479,10 @@
     class ArkeologiApp {
         constructor() {
             this.state = {
-                folders: [{ name: 'Default', tracks: [] }], // Folder awal
-                currentFolderIndex: 0,
+                folders: JSON.parse(localStorage.getItem('arkeologi_folders')) || [
+                    { id: 'default', name: 'Favorit', tracks: [] }
+                ],
+                currentFolderId: localStorage.getItem('arkeologi_current_folder') || 'default',
                 playlist: [],
                 currentTrackIndex: -1,
                 editingIndex: -1,
@@ -1415,9 +1502,13 @@
         }
 
         async init() {
+            const activeFolder = this.state.folders.find(f => f.id === this.state.currentFolderId) || this.state.folders[0];
+            this.state.playlist = activeFolder.tracks;
             this.loadStateFromStorage();
             this.initUI();
+            this.updateVolumeUI();
             this.initEventListeners();
+            this.initLyricsHandlers();
             this.loadYouTubeAPI();
             this.updateUI();
         }
@@ -1477,6 +1568,8 @@
             if (themeIcon) {
                 themeIcon.className = this.state.isDark ? 'ph ph-sun' : 'ph ph-moon';
             }
+
+            this.renderFolders();
 
             // Render playlist
             this.renderPlaylist();
@@ -1544,7 +1637,7 @@
                 }
             });
 
-   		      document.getElementById('headerVolumeSlider').addEventListener('click', (e) => this.adjustVolume(e));
+   		    document.getElementById('headerVolumeSlider').addEventListener('click', (e) => this.adjustVolume(e));
 
             // Keyboard shortcuts
             document.addEventListener('keydown', (e) => {
@@ -1565,6 +1658,29 @@
                         this.toggleMute();
                         break;
                 }
+            });
+
+            document.getElementById('addFolderBtn').addEventListener('click', () => this.addFolder());
+
+            document.getElementById('showLyricsBtn').addEventListener('click', () => {
+                document.getElementById('lyricsContainer').classList.remove('hidden');
+                document.querySelector('.album-art-container').classList.add('hidden');
+                document.getElementById('showLyricsBtn').style.color = "var(--c-primary)";
+                document.getElementById('showArtBtn').style.color = "var(--text-tertiary)";
+    
+                const track = this.state.playlist[this.state.currentTrackIndex];
+                this.fetchLyrics(track.artist, track.title);
+            });
+
+            document.getElementById('showArtBtn').addEventListener('click', () => {
+                document.getElementById('lyricsContainer').classList.add('hidden');
+                document.querySelector('.album-art-container').classList.remove('hidden');
+                document.getElementById('showArtBtn').style.color = "var(--c-primary)";
+                document.getElementById('showLyricsBtn').style.color = "var(--text-tertiary)";
+            });
+
+            document.getElementById('closeMoveModalBtn').addEventListener('click', () => {
+                document.getElementById('moveFolderModal').classList.remove('open');
             });
         }
 
@@ -1592,6 +1708,7 @@
 
             if (newTitle && index !== -1) {
                 this.state.playlist[index].title = newTitle;
+                this.saveFoldersToStorage();
                 this.saveStateToStorage();
                 this.renderPlaylist();
 
@@ -1939,55 +2056,216 @@
             }
         }
 
-        addToPlaylist(track) {
-            // Check for duplicates
-            const isDuplicate = this.state.playlist.some(t => t.id === track.id);
-            if (isDuplicate) {
-                this.showNotification('Lagu sudah ada dalam playlist', 'warning');
-                return;
-            }
+addFolder() {
+    const folderName = prompt("Masukkan nama folder baru:");
+    if (folderName && folderName.trim() !== "") {
+        const newFolder = {
+            id: 'f-' + Date.now(),
+            name: folderName.trim(),
+            tracks: []
+        };
+        this.state.folders.push(newFolder);
+        this.saveFoldersToStorage();
+        this.renderFolders();
+        this.showNotification(`Folder "${folderName}" dibuat`, 'success');
+    }
+}
 
-            this.state.playlist.push(track);
-            this.saveStateToStorage();
-            this.renderPlaylist();
+saveFoldersToStorage() {
+    localStorage.setItem('arkeologi_folders', JSON.stringify(this.state.folders));
+}
 
-            // Show mini player if first track
-            if (this.state.playlist.length === 1) {
-                document.getElementById('miniPlayer').classList.remove('hidden');
-            }
+renderFolders() {
+    const container = document.getElementById('folderContainer');
+    if (!container) return;
+    
+    container.innerHTML = '';
 
-            // Auto-play if no track is playing
-            if (this.state.currentTrackIndex === -1) {
-                this.playTrack(0);
-            }
+    this.state.folders.forEach(folder => {
+        const isActive = folder.id === this.state.currentFolderId;
+        const trackCount = folder.tracks ? folder.tracks.length : 0;
+        
+        // Buat element chip
+        const chip = document.createElement('div');
+        chip.className = `folder-chip ${isActive ? 'active' : ''}`;
+        
+        // Gunakan innerHTML agar bisa memasukkan icon dan badge jumlah lagu
+        chip.innerHTML = `
+            <div class="flex items-center" style="gap: 8px;">
+                <i class="ph-duotone ph-folders" style="font-size: 18px;"></i>
+                <div class="flex flex-col" style="align-items: flex-start; line-height: 1.2;">
+                    <span style="font-size: 14px;">${folder.name}</span>
+                    <span style="font-size: 10px; opacity: 0.7;">${trackCount} Lagu</span>
+                </div>
+            </div>
+        `;
+
+        // Tambahkan tombol hapus jika bukan folder default
+        if (folder.id !== 'default') {
+            const deleteBtn = document.createElement('button');
+            deleteBtn.innerHTML = '<i class="ph ph-x-circle"></i>';
+            deleteBtn.style.cssText = `
+                background: none;
+                border: none;
+                color: ${isActive ? 'rgba(255,255,255,0.8)' : 'var(--c-danger)'};
+                cursor: pointer;
+                font-size: 18px;
+                margin-left: 10px;
+                padding: 0;
+                display: flex;
+                align-items: center;
+                transition: transform 0.2s;
+            `;
+            
+            deleteBtn.onclick = (e) => {
+                e.stopPropagation(); // Mencegah trigger switchFolder
+                this.deleteFolder(folder.id);
+            };
+            
+            chip.appendChild(deleteBtn);
         }
 
-        removeFromPlaylist(index) {
-            if (index < 0 || index >= this.state.playlist.length) return;
+        // Event listener untuk pindah folder
+        chip.onclick = () => this.switchFolder(folder.id);
+        
+        container.appendChild(chip);
+    });
+}
 
-            const removedTrack = this.state.playlist[index];
-            this.state.playlist.splice(index, 1);
+switchFolder(folderId) {
+    this.state.currentFolderId = folderId;
+    localStorage.setItem('arkeologi_current_folder', folderId);
+    
+    // Update playlist aktif berdasarkan folder yang dipilih
+    const folder = this.state.folders.find(f => f.id === folderId);
+    this.state.playlist = folder ? folder.tracks : [];
+    
+    this.renderFolders();
+    this.renderPlaylist();
+}
 
-            // Adjust current track index if needed
-            if (this.state.currentTrackIndex === index) {
-                if (this.state.playlist.length > 0) {
-                    this.playTrack(Math.min(index, this.state.playlist.length - 1));
-                } else {
-                    this.state.currentTrackIndex = -1;
-                    this.updateTrackUI(null);
-                }
-            } else if (this.state.currentTrackIndex > index) {
-                this.state.currentTrackIndex--;
-            }
+deleteFolder(folderId, event) {
+    event.stopPropagation(); // Agar tidak memicu switchFolder
+    if (folderId === 'default') {
+        this.showNotification('Folder utama tidak bisa dihapus', 'warning');
+        return;
+    }
+    
+    if (confirm('Hapus folder ini beserta semua lagu di dalamnya?')) {
+        this.state.folders = this.state.folders.filter(f => f.id !== folderId);
+        this.state.currentFolderId = 'default';
+        this.state.playlist = this.state.folders[0].tracks;
+        
+        this.saveFoldersToStorage();
+        this.renderFolders();
+        this.renderPlaylist();
+    }
+}
 
-            this.saveStateToStorage();
-            this.renderPlaylist();
-            if (this.state.playlist.length === 0) {
-                document.getElementById('miniPlayer').classList.add('hidden');
-            }
-
-            this.showNotification(`"${removedTrack.title}" dihapus`, 'success');
+openMoveModal(index) {
+    this.state.movingIndex = index;
+    const modal = document.getElementById('moveFolderModal');
+    const listContainer = document.getElementById('folderSelectList');
+    
+    listContainer.innerHTML = '';
+    
+    // Tampilkan semua folder kecuali folder tempat lagu itu berada sekarang
+    this.state.folders.forEach(folder => {
+        if (folder.id !== this.state.currentFolderId) {
+            const item = document.createElement('div');
+            item.className = 'folder-select-item';
+            item.innerHTML = `
+                <i class="ph-fill ph-folder"></i>
+                <span style="font-weight: 600;">${folder.name}</span>
+            `;
+            item.onclick = () => this.moveTrackToFolder(folder.id);
+            listContainer.appendChild(item);
         }
+    });
+
+    if (listContainer.innerHTML === '') {
+        listContainer.innerHTML = '<p style="text-align:center; color:var(--text-secondary);">Buat folder baru dulu untuk memindahkan lagu ini.</p>';
+    }
+
+    modal.classList.add('open');
+}
+
+moveTrackToFolder(targetFolderId) {
+    const sourceIndex = this.state.movingIndex;
+    const track = this.state.playlist[sourceIndex];
+    
+    // 1. Cari folder tujuan
+    const targetFolder = this.state.folders.find(f => f.id === targetFolderId);
+    
+    // 2. Tambahkan ke folder tujuan
+    targetFolder.tracks.push({ ...track });
+    
+    // 3. Hapus dari folder asal (playlist sekarang)
+    this.removeFromPlaylist(sourceIndex);
+    
+    // 4. Tutup modal dan simpan
+    document.getElementById('moveFolderModal').classList.remove('open');
+    this.saveFoldersToStorage();
+    this.renderFolders();
+    this.showNotification(`Berhasil dipindah ke ${targetFolder.name}`, 'success');
+}
+        
+addToPlaylist(track) {
+    const folder = this.state.folders.find(f => f.id === this.state.currentFolderId);
+    
+    if (!folder) {
+        this.showNotification('Folder tidak ditemukan', 'error');
+        return;
+    }
+
+    const isDuplicate = folder.tracks.some(t => t.id === track.id);
+    if (isDuplicate) {
+        this.showNotification('Lagu sudah ada di folder ini', 'warning');
+        return;
+    }
+
+    // Tambahkan ke folder dan sinkronkan playlist aktif
+    folder.tracks.push(track);
+    this.state.playlist = folder.tracks;
+
+    this.saveFoldersToStorage(); // Gunakan saveFolders karena data ada di dalam array folders
+    this.renderPlaylist();
+    this.renderFolders(); // Update badge jumlah lagu di chip
+
+    if (this.state.playlist.length === 1) {
+        document.getElementById('miniPlayer').classList.remove('hidden');
+        this.playTrack(0);
+    }
+    
+    this.showNotification(`Ditambah ke ${folder.name}`, 'success');
+}
+
+removeFromPlaylist(index) {
+    if (index < 0 || index >= this.state.playlist.length) return;
+
+    this.state.playlist.splice(index, 1);
+
+    // Update status pemutar jika lagu yang dihapus sedang diputar
+    if (this.state.currentTrackIndex === index) {
+        if (this.state.playlist.length > 0) {
+            this.playTrack(Math.min(index, this.state.playlist.length - 1));
+        } else {
+            this.state.currentTrackIndex = -1;
+            this.updateTrackUI(null);
+            if(this.youtubePlayer) this.youtubePlayer.stopVideo();
+        }
+    } else if (this.state.currentTrackIndex > index) {
+        this.state.currentTrackIndex--;
+    }
+
+    this.saveFoldersToStorage();
+    this.renderPlaylist();
+    this.renderFolders(); // Update badge jumlah lagu
+    
+    if (this.state.playlist.length === 0) {
+        document.getElementById('miniPlayer').classList.add('hidden');
+    }
+}
 
         clearPlaylist() {
             if (this.state.playlist.length === 0) return;
@@ -2039,12 +2317,15 @@
                     </div>
                     <div class="track-duration">${track.duration || '--:--'}</div>
                     <div class="track-actions">
+                        <button class="icon-btn" onclick="event.stopPropagation(); app.openMoveModal(${index})" 
+            title="Pindah Folder" style="color: var(--c-secondary);">
+                            <i class="ph ph-arrows-out-line"></i>
+                        </button>
                         <button class="icon-btn" onclick="event.stopPropagation(); app.openEditModal(${index})" 
-        aria-label="Edit title" style="color: var(--c-primary);">
+            style="color: var(--c-primary);">
                             <i class="ph ph-pencil-simple"></i>
                         </button>
-                        <button class="icon-btn" onclick="event.stopPropagation(); app.removeFromPlaylist(${index})" 
-            aria-label="Remove from playlist">
+                        <button class="icon-btn" onclick="event.stopPropagation(); app.removeFromPlaylist(${index})">
                             <i class="ph ph-trash"></i>
                         </button>
                     </div>
