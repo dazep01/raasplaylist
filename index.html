@@ -1,0 +1,2356 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#9CAF88">
+    <meta name="description" content="Raa's PlayList - Aplikasi pemutar musik modern dan ringan">
+  
+    <title>Raa's PlayList</title>
+
+    <!-- Icons for iOS -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='192' height='192' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' fill='%239CAF88'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='white' font-family='Arial' font-size='48'%3E%E2%8A%B7%3C/text%3E%3C/svg%3E">
+
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+        /* =========================================
+           iOS NATIVE REDESIGN - Olive Pastel Theme
+           ========================================= */
+        
+        :root {
+            /* iOS-inspired Olive Pastel Palette */
+            --c-primary: #9CAF88;
+            --c-primary-dark: #7D8E6A;
+            --c-primary-light: #B8C9A4;
+            --c-primary-ultralight: rgba(156, 175, 136, 0.1);
+            --c-secondary: #A8BFA5;
+            --c-danger: #E8A0A0;
+            --c-warning: #E8D0A0;
+            --c-success: #A8C9A5;
+            
+            /* iOS Glass Effect */
+            --glass-bg: rgba(255, 255, 255, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            
+            /* iOS Neutral Palette - Light Mode */
+            --bg-base: #F8F9F7;
+            --bg-card: #FFFFFF;
+            --bg-press: rgba(156, 175, 136, 0.08);
+            --bg-modal: #FFFFFF;
+            --bg-tab: #F8F9F7;
+            
+            /* Text Colors */
+            --text-primary: #2C3E2F;
+            --text-secondary: #6B7B6D;
+            --text-tertiary: #9CAF88;
+            --text-on-primary: #FFFFFF;
+            
+            /* iOS Borders */
+            --border: rgba(156, 175, 136, 0.15);
+            --border-light: rgba(156, 175, 136, 0.08);
+            --border-heavy: rgba(156, 175, 136, 0.25);
+            
+            /* iOS Shadows */
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+            --shadow-xl: 0 12px 48px rgba(0, 0, 0, 0.16);
+            --shadow-inset: inset 0 0 0 1px var(--border);
+            
+            /* iOS Dimensions */
+            --safe-top: env(safe-area-inset-top, 44px);
+            --safe-bottom: env(safe-area-inset-bottom, 34px);
+            --header-h: 60px;
+            --radius-sm: 12px;
+            --radius-md: 18px;
+            --radius-lg: 24px;
+            --radius-xl: 28px;
+            --radius-full: 9999px;
+            
+            /* iOS Animations */
+            --ease-out: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --ease-in-out: cubic-bezier(0.42, 0, 0.58, 1);
+            --ease-ios: cubic-bezier(0.4, 0, 0.2, 1);
+            
+            /* iOS Blur */
+            --backdrop-blur: saturate(180%) blur(20px);
+        }
+        
+        /* Dark Mode - iOS Inspired */
+        [data-theme="dark"] {
+            --glass-bg: rgba(30, 35, 28, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            
+            --bg-base: #0F120E;
+            --bg-card: #1A1D18;
+            --bg-press: rgba(156, 175, 136, 0.12);
+            --bg-modal: #1A1D18;
+            --bg-tab: #0F120E;
+            
+            --text-primary: #F0F2EF;
+            --text-secondary: #9CAF88;
+            --text-tertiary: #7D8E6A;
+            
+            --border: rgba(156, 175, 136, 0.2);
+            --border-light: rgba(156, 175, 136, 0.12);
+            --border-heavy: rgba(156, 175, 136, 0.3);
+            
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.25);
+            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.3);
+            --shadow-xl: 0 12px 48px rgba(0, 0, 0, 0.35);
+        }
+        
+        /* =========================================
+           RESET & BASE STYLES - iOS Optimized
+           ========================================= */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'SF Pro Display', sans-serif;
+            background: var(--bg-base);
+            color: var(--text-primary);
+            line-height: 1.47;
+            overflow: hidden;
+            height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            font-weight: 400;
+            letter-spacing: -0.01em;
+        }
+        
+        #app {
+            max-width: 480px;
+            height: 100vh;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+            background: var(--bg-base);
+            border-radius: 0;
+            box-shadow: none;
+        }
+        
+        /* iOS Status Bar Area */
+        #app::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--safe-top);
+            background: var(--glass-bg);
+            backdrop-filter: var(--backdrop-blur);
+            -webkit-backdrop-filter: var(--backdrop-blur);
+            z-index: 10000;
+            border-bottom: 1px solid var(--glass-border);
+        }
+        
+        /* =========================================
+           TYPOGRAPHY - iOS Style
+           ========================================= */
+        .text-xs { 
+            font-size: 13px; 
+            font-weight: 400;
+            letter-spacing: -0.005em;
+        }
+        .text-sm { 
+            font-size: 15px; 
+            font-weight: 400;
+            letter-spacing: -0.01em;
+        }
+        .text-base { 
+            font-size: 17px; 
+            font-weight: 400;
+            letter-spacing: -0.02em;
+        }
+        .text-lg { 
+            font-size: 20px; 
+            font-weight: 500;
+            letter-spacing: -0.02em;
+        }
+        .text-xl { 
+            font-size: 22px; 
+            font-weight: 600;
+            letter-spacing: -0.03em;
+        }
+        .text-2xl { 
+            font-size: 28px; 
+            font-weight: 700;
+            letter-spacing: -0.03em;
+        }
+        
+        .font-medium { font-weight: 500; }
+        .font-semibold { font-weight: 600; }
+        .font-bold { font-weight: 700; }
+        
+        .text-secondary { color: var(--text-secondary); }
+        .text-tertiary { color: var(--text-tertiary); }
+        .text-primary { color: var(--c-primary); }
+        
+        /* =========================================
+           UTILITY CLASSES
+           ========================================= */
+        .hidden { display: none !important; }
+        .flex { display: flex; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .flex-col { flex-direction: column; }
+        .flex-1 { flex: 1; }
+        
+        .truncate {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        /* iOS-style line clamp */
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        /* =========================================
+           HEADER - iOS Navigation Bar
+           ========================================= */
+        .header {
+            position: fixed;
+            top: var(--safe-top);
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 12px 20px;
+            background: var(--glass-bg);
+            backdrop-filter: var(--backdrop-blur);
+            -webkit-backdrop-filter: var(--backdrop-blur);
+            border-bottom: 1px solid var(--glass-border);
+            max-width: 480px;
+            margin: 0 auto;
+            height: var(--header-h);
+        }
+        
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 100%;
+        }
+        
+        .logo {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            background: linear-gradient(135deg, var(--c-primary), var(--c-secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            padding: 0;
+        }
+        
+        /* =========================================
+           iOS ICON BUTTONS
+           ========================================= */
+        .icon-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-press);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s var(--ease-ios);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .icon-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(156, 175, 136, 0.1);
+            transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s;
+        }
+        
+        .icon-btn:active::after {
+            width: 44px;
+            height: 44px;
+        }
+        
+        .icon-btn:hover {
+            transform: translateY(-1px);
+            background: var(--bg-press);
+            border-color: var(--border-heavy);
+        }
+        
+        .icon-btn:active {
+            transform: translateY(0);
+        }
+        
+        /* =========================================
+           iOS SEARCH BAR
+           ========================================= */
+        .search-container {
+            position: relative;
+            margin: calc(var(--safe-top) + var(--header-h) + 20px) 20px 20px;
+        }
+        
+        .search-input {
+            width: 100%;
+            height: 56px;
+            padding: 0 52px 0 56px;
+            background: var(--bg-card);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-full);
+            font-size: 17px;
+            color: var(--text-primary);
+            outline: none;
+            transition: all 0.3s var(--ease-ios);
+            font-weight: 400;
+            letter-spacing: -0.01em;
+            box-shadow: var(--shadow-inset);
+        }
+        
+        .search-input:focus {
+            border-color: var(--c-primary);
+            background: var(--bg-card);
+            box-shadow: 0 0 0 4px var(--c-primary-ultralight), var(--shadow-inset);
+        }
+        
+        .search-input::placeholder {
+            color: var(--text-tertiary);
+            font-weight: 400;
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-tertiary);
+            pointer-events: none;
+            font-size: 20px;
+        }
+        
+        .search-clear {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            display: none;
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+        }
+        
+        .search-clear:hover {
+            background: var(--bg-press);
+        }
+        
+        .search-input:not(:placeholder-shown) + .search-clear {
+            display: flex;
+        }
+        
+        /* =========================================
+           SECTION HEADERS - iOS Style
+           ========================================= */
+        .section-header {
+            margin: 0 20px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .section-title {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-tertiary);
+            font-weight: 600;
+        }
+        
+        .section-action {
+            background: none;
+            border: none;
+            color: var(--c-danger);
+            font-size: 15px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            transition: all 0.2s var(--ease-ios);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+        }
+        
+        .section-action:hover {
+            background: rgba(232, 160, 160, 0.1);
+        }
+        
+        /* =========================================
+           TRACK LIST - iOS Table View Style
+           ========================================= */
+        .track-list {
+            padding: 0 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: calc(100vh - 300px);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .track-item {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            gap: 16px;
+            cursor: pointer;
+            transition: all 0.3s var(--ease-ios);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .track-item::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-press);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        
+        .track-item:hover::after {
+            opacity: 1;
+        }
+        
+        .track-item.active {
+            background: var(--c-primary-ultralight);
+            border-color: var(--c-primary);
+            box-shadow: 0 0 0 1px var(--c-primary);
+        }
+        
+        .track-item.active::after {
+            opacity: 0;
+        }
+        
+        .track-thumb {
+            width: 60px;
+            height: 60px;
+            border-radius: var(--radius-full);
+            background: linear-gradient(135deg, var(--c-primary), var(--c-secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .track-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .track-thumb .fallback-icon {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 28px;
+            opacity: 0.9;
+        }
+        
+        .track-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .track-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: var(--text-primary);
+            font-size: 17px;
+            letter-spacing: -0.02em;
+        }
+        
+        .track-artist {
+            font-size: 15px;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+        
+        .track-duration {
+            font-size: 15px;
+            color: var(--text-tertiary);
+            margin-left: 8px;
+            font-variant-numeric: tabular-nums;
+        }
+        
+        .track-actions {
+            display: flex;
+            gap: 8px;
+            opacity: 0;
+            transition: opacity 0.3s var(--ease-ios);
+            z-index: 1;
+        }
+        
+        .track-item:hover .track-actions {
+            opacity: 1;
+        }
+        
+        /* =========================================
+           MINI PLAYER - iOS Now Playing Bar
+           ========================================= */
+        .mini-player {
+            position: fixed;
+            bottom: calc(12px + var(--safe-bottom));
+            left: 50%;
+            transform: translateX(-50%) translateY(0);
+            width: calc(100% - 32px);
+            max-width: 448px;
+            height: 72px;
+            background: var(--glass-bg);
+            backdrop-filter: var(--backdrop-blur);
+            -webkit-backdrop-filter: var(--backdrop-blur);
+            border-radius: var(--radius-full);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: all 0.5s var(--ease-ios);
+        }
+        
+        .mini-player.hidden {
+            transform: translateX(-50%) translateY(calc(100% + 20px));
+            opacity: 0;
+        }
+        
+        .mini-thumb {
+            width: 56px;
+            height: 56px;
+            border-radius: var(--radius-full);
+            background: linear-gradient(135deg, var(--c-primary), var(--c-secondary));
+            position: relative;
+            overflow: hidden;
+            flex-shrink: 0;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .mini-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .mini-thumb .fallback-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 24px;
+            opacity: 0.9;
+        }
+        
+        .mini-thumb.playing::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
+            animation: shimmer 3s infinite linear;
+        }
+        
+        .mini-info {
+            flex: 1;
+            min-width: 0;
+            cursor: pointer;
+            padding: 4px 0;
+        }
+        
+        .mini-title {
+            font-weight: 600;
+            margin-bottom: 2px;
+            font-size: 16px;
+            letter-spacing: -0.01em;
+        }
+        
+        .mini-artist {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+        
+        .mini-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        /* =========================================
+           PLAYER MODAL - iOS Full Screen Player
+           ========================================= */
+        .player-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-modal);
+            z-index: 2000;
+            transform: translateY(100%);
+            transition: transform 0.5s var(--ease-ios);
+            display: flex;
+            flex-direction: column;
+            padding: var(--safe-top) 0 var(--safe-bottom);
+            opacity: 0;
+            border-radius: 0;
+        }
+        
+        .player-modal.open {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .modal-header {
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            border-bottom: 1px solid var(--border-light);
+        }
+        
+        .modal-close {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        .modal-title {
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .modal-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 32px 20px;
+            display: flex;
+            flex-direction: column;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .album-art-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            margin-bottom: 40px;
+            box-shadow: var(--shadow-xl);
+            background: linear-gradient(135deg, var(--c-primary), var(--c-secondary));
+        }
+        
+        .album-art {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .album-art-fallback {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 80px;
+            opacity: 0.9;
+        }
+        
+        .track-info-large {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+        
+        .track-title-large {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            line-height: 1.3;
+            letter-spacing: -0.03em;
+            color: var(--text-primary);
+        }
+        
+        .track-artist-large {
+            font-size: 20px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            letter-spacing: -0.02em;
+        }
+        
+        /* =========================================
+           PROGRESS BAR - iOS Style
+           ========================================= */
+        .progress-container {
+            margin-bottom: 48px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 12px;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .progress-bar::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 20px;
+            transform: translateY(-50%);
+            z-index: 1;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: var(--c-primary);
+            width: 0%;
+            border-radius: 2px;
+            transition: width 0.1s linear;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .progress-time {
+            display: flex;
+            justify-content: space-between;
+            font-size: 15px;
+            color: var(--text-tertiary);
+            font-variant-numeric: tabular-nums;
+            font-weight: 400;
+        }
+        
+        /* =========================================
+           PLAYER CONTROLS - iOS Style
+           ========================================= */
+        .player-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 32px;
+            padding: 0 20px;
+            margin-bottom: 48px;
+        }
+        
+        .control-btn {
+            width: 56px;
+            height: 56px;
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-press);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s var(--ease-ios);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .control-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(156, 175, 136, 0.15);
+            transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s;
+        }
+        
+        .control-btn:active::after {
+            width: 56px;
+            height: 56px;
+        }
+        
+        .control-btn.active {
+            background: var(--c-primary);
+            color: var(--text-on-primary);
+            border-color: var(--c-primary);
+        }
+        
+        .control-btn-large {
+            width: 72px;
+            height: 72px;
+            font-size: 28px;
+            background: var(--c-primary);
+            color: var(--text-on-primary);
+            border: none;
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .control-btn-large:hover {
+            transform: scale(1.05);
+            box-shadow: var(--shadow-xl);
+        }
+        
+        .control-btn-large:active {
+            transform: scale(0.98);
+        }
+        
+        /* =========================================
+           VOLUME CONTROL - iOS Style
+           ========================================= */
+        .volume-container {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 0 20px;
+            margin-top: 32px;
+        }
+        
+        .volume-icon {
+            color: var(--text-tertiary);
+            font-size: 20px;
+            min-width: 24px;
+        }
+        
+        .volume-slider {
+            flex: 1;
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .volume-slider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 20px;
+            transform: translateY(-50%);
+        }
+        
+        .volume-fill {
+            height: 100%;
+            background: var(--c-primary);
+            border-radius: 2px;
+            width: 70%;
+            position: relative;
+            z-index: 2;
+        }
+        
+        /* =========================================
+           LOADING STATES - iOS Style
+           ========================================= */
+        .skeleton {
+            background: linear-gradient(90deg, var(--border) 25%, var(--bg-press) 50%, var(--border) 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite ease-in-out;
+            border-radius: var(--radius-md);
+        }
+        
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+        
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--border);
+            border-top-color: var(--c-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        /* =========================================
+           NOTIFICATIONS - iOS Banner Style
+           ========================================= */
+        .notification {
+            position: fixed;
+            top: calc(var(--safe-top) + var(--header-h) + 12px);
+            left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            background: var(--glass-bg);
+            backdrop-filter: var(--backdrop-blur);
+            -webkit-backdrop-filter: var(--backdrop-blur);
+            color: var(--text-primary);
+            padding: 16px 24px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            z-index: 3000;
+            opacity: 0;
+            transition: all 0.4s var(--ease-ios);
+            border: 1px solid var(--glass-border);
+            max-width: calc(100% - 40px);
+            width: max-content;
+            font-size: 15px;
+            font-weight: 500;
+        }
+        
+        .notification.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        
+        .notification.success { 
+            border-bottom: 4px solid var(--c-success);
+            background: rgba(168, 201, 165, 0.1);
+        }
+        .notification.error { 
+            border-bottom: 4px solid var(--c-danger);
+            background: rgba(232, 160, 160, 0.1);
+        }
+        .notification.warning { 
+            border-bottom: 4px solid var(--c-warning);
+            background: rgba(232, 208, 160, 0.1);
+        }
+        
+        /* =========================================
+           EMPTY STATE - iOS Style
+           ========================================= */
+        #emptyState {
+            padding: 80px 20px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #emptyState i {
+            font-size: 72px;
+            color: var(--text-tertiary);
+            margin-bottom: 24px;
+            opacity: 0.5;
+        }
+        
+        /* =========================================
+           CUSTOM SCROLLBAR - iOS Style
+           ========================================= */
+        ::-webkit-scrollbar {
+            width: 5px;
+            display: none;
+        }
+        
+        .track-list:hover::-webkit-scrollbar {
+            display: block;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: var(--radius-full);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .track-list:hover::-webkit-scrollbar-thumb {
+            opacity: 1;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-tertiary);
+        }
+        
+        /* =========================================
+           ANIMATIONS - iOS Style
+           ========================================= */
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        @keyframes shimmer {
+            0% { opacity: 0.3; transform: translateX(-100%); }
+            50% { opacity: 0.6; }
+            100% { opacity: 0.3; transform: translateX(100%); }
+        }
+        
+        @keyframes slideIn {
+            from { 
+                transform: translateY(20px); 
+                opacity: 0; 
+            }
+            to { 
+                transform: translateY(0); 
+                opacity: 1; 
+            }
+        }
+        
+        @keyframes gentlePulse {
+            0%, 100% { 
+                opacity: 1; 
+                transform: scale(1); 
+            }
+            50% { 
+                opacity: 0.8; 
+                transform: scale(0.98); 
+            }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        /* =========================================
+           RESPONSIVE ADJUSTMENTS
+           ========================================= */
+        @media (max-width: 480px) {
+            .player-controls {
+                gap: 24px;
+            }
+            
+            .control-btn {
+                width: 52px;
+                height: 52px;
+                font-size: 22px;
+            }
+            
+            .control-btn-large {
+                width: 68px;
+                height: 68px;
+                font-size: 26px;
+            }
+            
+            .track-title-large {
+                font-size: 24px;
+            }
+            
+            .track-artist-large {
+                font-size: 18px;
+            }
+            
+            .album-art-container {
+                border-radius: var(--radius-lg);
+            }
+        }
+        
+        /* iOS Safari Specific */
+        @supports (-webkit-touch-callout: none) {
+            .header {
+                backdrop-filter: var(--backdrop-blur);
+                -webkit-backdrop-filter: var(--backdrop-blur);
+            }
+            
+            .mini-player {
+                backdrop-filter: var(--backdrop-blur);
+                -webkit-backdrop-filter: var(--backdrop-blur);
+            }
+            
+            .notification {
+                backdrop-filter: var(--backdrop-blur);
+                -webkit-backdrop-filter: var(--backdrop-blur);
+            }
+        }
+        
+        /* Smooth transitions for theme changes */
+        body, .header, .mini-player, .notification {
+            transition: background-color 0.4s var(--ease-ios),
+                        border-color 0.4s var(--ease-ios),
+                        color 0.4s var(--ease-ios);
+        }
+        
+        /* Haptic feedback simulation */
+        .icon-btn:active,
+        .control-btn:active,
+        .section-action:active {
+            animation: gentlePulse 0.2s ease-out;
+        }
+        
+        /* Enhanced focus states for accessibility */
+        .icon-btn:focus-visible,
+        .control-btn:focus-visible,
+        .search-input:focus-visible,
+        .section-action:focus-visible {
+            outline: 2px solid var(--c-primary);
+            outline-offset: 2px;
+        }
+        
+        /* iOS-style overscroll effect */
+        body {
+            overscroll-behavior-y: none;
+        }
+        
+        #app {
+            overscroll-behavior-y: contain;
+        }
+        
+        /* Hide scrollbar for track list when not scrolling */
+        .track-list::-webkit-scrollbar {
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .track-list:active::-webkit-scrollbar,
+        .track-list:focus::-webkit-scrollbar,
+        .track-list:hover::-webkit-scrollbar {
+            opacity: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="logo">Raa's ⊷ PlayList</h1>
+                <div class="flex gap-2" style="gap: 10px;">
+                    <button class="icon-btn" id="themeToggle" aria-label="Toggle Theme">
+                        <i class="ph ph-moon"></i>
+                    </button>
+                    <div style="position: relative;">
+                        <button class="icon-btn" id="volumeHeaderBtn" aria-label="Volume">
+                            <i class="ph ph-speaker-high" id="headerVolumeIcon"></i>
+                        </button>
+
+                        <div id="volumePopover" class="hidden" style="position: absolute; top: 55px; right: 0; background: var(--glass-bg); backdrop-filter: var(--backdrop-blur); -webkit-backdrop-filter: var(--backdrop-blur); padding: 15px; border-radius: 20px; border: 1px solid var(--glass-border); box-shadow: var(--shadow-lg); z-index: 2000; width: 200px;">
+                            <div class="flex items-center gap-3">
+                                <i class="ph ph-speaker-low" style="font-size: 18px; color: var(--text-tertiary);"></i>
+                                <div class="volume-slider" id="headerVolumeSlider" style="flex: 1; margin: 0;">
+                                    <div class="volume-fill" id="headerVolumeFill"></div>
+                                </div>
+                                <i class="ph ph-speaker-high" style="font-size: 18px; color: var(--text-tertiary);"></i>
+                            </div>
+                            <div style="text-align: center; font-size: 12px; margin-top: 8px; color: var(--text-secondary); font-weight: 600;" id="headerVolumeText">70%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- Search -->
+            <div class="search-container">
+                <i class="ph ph-magnifying-glass search-icon"></i>
+                <input type="text" class="search-input" id="searchInput" placeholder="Cari lagu atau paste link YouTube...">
+                <button class="search-clear" id="searchClear" aria-label="Clear search">
+                    <i class="ph ph-x"></i>
+                </button>
+            </div>
+
+            <!-- Playlist Section -->
+            <div class="section-header">
+                <h2 class="section-title">Daftar Putar</h2>
+                <button class="section-action" id="clearPlaylistBtn">
+                    <i class="ph ph-trash"></i> Hapus Semua
+                </button>
+            </div>
+
+            <!-- Playlist Container -->
+            <div id="playlistContainer" class="track-list">
+                <!-- Tracks will be dynamically inserted here -->
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="flex flex-col items-center justify-center" style="padding: 60px 20px; text-align: center;">
+                <i class="ph-duotone ph-music-notes" style="font-size: 64px; color: var(--text-tertiary); margin-bottom: 16px;"></i>
+                <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 8px; color: var(--text-primary);">
+                    Belum ada musik
+                </h3>
+                <p style="color: var(--text-secondary);">
+                    Cari lagu favoritmu atau paste link YouTube untuk memulai
+                </p>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loadingState" class="hidden loading">
+                <div class="spinner"></div>
+            </div>
+        </main>
+
+        <!-- Mini Player -->
+        <div id="miniPlayer" class="mini-player hidden">
+            <div class="mini-thumb" id="miniThumb">
+                <img src="" alt="" id="miniThumbImg">
+                <i class="ph-duotone ph-music-notes fallback-icon"></i>
+            </div>
+            <div class="mini-info" id="miniInfo">
+                <div class="mini-title truncate" id="miniTitle">Tidak ada lagu</div>
+                <div class="mini-artist truncate" id="miniArtist">Pilih musik untuk memulai</div>
+            </div>
+            <div class="mini-controls">
+                <button class="icon-btn" id="miniPlayBtn" aria-label="Play/Pause">
+                    <i class="ph ph-play" id="miniPlayIcon"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Player Modal -->
+        <div id="playerModal" class="player-modal">
+            <div class="modal-header">
+                <button class="icon-btn modal-close" id="closeModalBtn" aria-label="Close player">
+                    <i class="ph ph-caret-down"></i>
+                </button>
+                <div class="modal-title">Sekarang Diputar</div>
+            </div>
+
+            <div class="modal-content">
+                <!-- Album Art -->
+                <div class="album-art-container">
+                    <img src="" alt="" class="album-art" id="albumArtImg">
+                    <i class="ph-duotone ph-music-notes album-art-fallback"></i>
+                </div>
+
+                <!-- Track Info -->
+                <div class="track-info-large">
+                    <h2 class="track-title-large truncate" id="modalTitle">...</h2>
+                    <p class="track-artist-large truncate" id="modalArtist">...</p>
+                </div>
+
+                <!-- Progress -->
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressBar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div class="progress-time">
+                        <span id="currentTime">0:00</span>
+                        <span id="totalTime">0:00</span>
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div class="player-controls">
+                    <button class="control-btn" id="shuffleBtn" aria-label="Shuffle">
+                        <i class="ph ph-shuffle"></i>
+                    </button>
+                    <button class="control-btn" id="prevBtn" aria-label="Previous">
+                        <i class="ph ph-skip-back"></i>
+                    </button>
+                    <button class="control-btn control-btn-large" id="playBtn" aria-label="Play/Pause">
+                        <i class="ph ph-play" id="playIcon"></i>
+                    </button>
+                    <button class="control-btn" id="nextBtn" aria-label="Next">
+                        <i class="ph ph-skip-forward"></i>
+                    </button>
+                    <button class="control-btn" id="repeatBtn" aria-label="Repeat">
+                        <i class="ph ph-repeat" id="repeatIcon"></i>
+                    </button>
+                </div>
+
+                <!-- Volume -->
+                <div class="volume-container">
+                    <i class="ph ph-speaker-simple volume-icon"></i>
+                    <div class="volume-slider" id="volumeSlider">
+                        <div class="volume-fill" id="volumeFill"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="editModal" class="player-modal" style="height: auto; min-height: 250px; bottom: 0; top: auto; border-radius: 24px 24px 0 0;">
+            <div class="modal-header">
+                <div class="modal-title">Ubah Nama Lagu</div>
+                <button class="icon-btn modal-close" id="closeEditModalBtn">
+                    <i class="ph ph-x"></i>
+                </button>
+            </div>
+            <div class="modal-content" style="padding: 20px;">
+                <div class="search-container" style="margin: 0 0 20px 0;">
+                    <i class="ph ph-pencil search-icon"></i>
+                    <input type="text" id="editTitleInput" class="search-input" placeholder="Masukkan judul baru...">
+                </div>
+                <button class="control-btn" id="saveTitleBtn" style="width: 100%; border-radius: var(--radius-md); background: var(--c-primary); color: white;">
+                    Simpan Perubahan
+                </button>
+            </div>
+        </div>
+
+
+        <!-- Hidden YouTube Player -->
+        <div id="yt-player" style="position: absolute; top: -9999px; left: -9999px;"></div>
+
+        <!-- Notification Container -->
+        <div id="notificationContainer"></div>
+    </div>
+  
+<script>
+    // =========================================
+    // CORE APPLICATION - MODULAR ARCHITECTURE
+    // =========================================
+
+    class ArkeologiApp {
+        constructor() {
+            this.state = {
+                playlist: [],
+                currentTrackIndex: -1,
+                editingIndex: -1,
+                isPlaying: false,
+                isDark: localStorage.getItem('arkeologi_theme') === 'dark',
+                playerReady: false,
+                repeatMode: 'none', // 'none', 'one', 'all'
+                isShuffle: false,
+                volume: 70,
+                searchQuery: '',
+                isLoading: false
+            };
+
+            this.youtubePlayer = null;
+            this.progressInterval = null;
+            this.init();
+        }
+
+        async init() {
+            this.loadStateFromStorage();
+            this.initUI();
+            this.initEventListeners();
+            this.loadYouTubeAPI();
+            this.updateUI();
+        }
+
+        loadStateFromStorage() {
+            const savedPlaylist = localStorage.getItem('arkeologi_playlist');
+            if (savedPlaylist) {
+                try {
+                    this.state.playlist = JSON.parse(savedPlaylist);
+                } catch (e) {
+                    console.error('Error loading playlist:', e);
+                    this.state.playlist = [];
+                }
+            }
+
+            const savedVolume = localStorage.getItem('arkeologi_volume');
+            if (savedVolume) {
+                this.state.volume = parseInt(savedVolume);
+            }
+        }
+        saveStateToStorage() {
+            localStorage.setItem('arkeologi_playlist', JSON.stringify(this.state.playlist));
+            localStorage.setItem('arkeologi_volume', this.state.volume.toString());
+        }
+
+        editTrackTitle(index) {
+            if (index < 0 || index >= this.state.playlist.length) return;
+
+            const track = this.state.playlist[index];
+            const newTitle = prompt("Ubah judul lagu:", track.title);
+
+            if (newTitle !== null && newTitle.trim() !== "") {
+                // Update data di state
+                this.state.playlist[index].title = newTitle.trim();
+
+                // Simpan ke localStorage
+                this.saveStateToStorage();
+
+                // Perbarui UI Playlist
+                this.renderPlaylist();
+
+                // Jika lagu yang diedit sedang diputar, update UI Player juga
+                if (index === this.state.currentTrackIndex) {
+                    this.updateTrackUI(this.state.playlist[index]);
+                }
+
+                this.showNotification('Judul berhasil diubah', 'success');
+            }
+        }
+
+        initUI() {
+            // Set theme
+            document.documentElement.setAttribute('data-theme', this.state.isDark ? 'dark' : 'light');
+
+            // Update theme icon
+            const themeIcon = document.querySelector('#themeToggle i');
+            if (themeIcon) {
+                themeIcon.className = this.state.isDark ? 'ph ph-sun' : 'ph ph-moon';
+            }
+
+            // Render playlist
+            this.renderPlaylist();
+
+            // Update mini player visibility
+            if (this.state.playlist.length > 0) {
+                document.getElementById('miniPlayer').classList.remove('hidden');
+            }
+        }
+        initEventListeners() {
+            // Theme toggle
+            document.getElementById('themeToggle').addEventListener('click', () => this.toggleTheme());
+
+            // Search
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') {
+                    this.handleSearch(searchInput.value);
+                }
+            });
+
+            // Clear search
+            document.getElementById('searchClear').addEventListener('click', () => {
+                searchInput.value = '';
+                searchInput.focus();
+            });
+
+            // Clear playlist
+            document.getElementById('clearPlaylistBtn').addEventListener('click', () => this.clearPlaylist());
+
+            // Mini player controls
+            document.getElementById('miniPlayBtn').addEventListener('click', () => this.togglePlay());
+            document.getElementById('miniInfo').addEventListener('click', () => this.openPlayerModal());
+
+            // Modal controls
+            document.getElementById('closeModalBtn').addEventListener('click', () => this.closePlayerModal());
+            document.getElementById('playBtn').addEventListener('click', () => this.togglePlay());
+            document.getElementById('prevBtn').addEventListener('click', () => this.playPrevious());
+            document.getElementById('nextBtn').addEventListener('click', () => this.playNext());
+            document.getElementById('shuffleBtn').addEventListener('click', () => this.toggleShuffle());
+            document.getElementById('repeatBtn').addEventListener('click', () => this.toggleRepeat());
+
+            // Progress bar click
+            document.getElementById('progressBar').addEventListener('click', (e) => this.seekToPosition(e));
+
+            // Volume slider
+            document.getElementById('volumeSlider').addEventListener('click', (e) => this.adjustVolume(e));
+
+            document.getElementById('closeEditModalBtn').addEventListener('click', () => this.closeEditModal());
+
+            document.getElementById('saveTitleBtn').addEventListener('click', () => this.saveNewTitle());
+
+            // Toggle Volume Popover
+            const volBtn = document.getElementById('volumeHeaderBtn');
+            const volPop = document.getElementById('volumePopover');
+
+            volBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                volPop.classList.toggle('hidden');            });
+
+            // Tutup popover jika klik di luar
+            document.addEventListener('click', (e) => {
+                if (!volPop.contains(e.target)) {
+                    volPop.classList.add('hidden');
+                }
+            });
+
+   		      document.getElementById('headerVolumeSlider').addEventListener('click', (e) => this.adjustVolume(e));
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                if (e.target.tagName === 'INPUT') return;
+
+                switch (e.key) {
+                    case ' ':
+                        e.preventDefault();
+                        this.togglePlay();
+                        break;
+                    case 'ArrowLeft':
+                        this.playPrevious();
+                        break;
+                    case 'ArrowRight':
+                        this.playNext();
+                        break;
+                    case 'm':
+                        this.toggleMute();
+                        break;
+                }
+            });
+        }
+
+        openEditModal(index) {
+            if (index < 0 || index >= this.state.playlist.length) return;
+
+            this.state.editingIndex = index;
+            const track = this.state.playlist[index];
+
+            const modal = document.getElementById('editModal');
+            const input = document.getElementById('editTitleInput');
+
+            input.value = track.title;
+            modal.classList.add('open');
+            input.focus();
+        }
+
+        closeEditModal() {
+            document.getElementById('editModal').classList.remove('open');
+            this.state.editingIndex = -1;        }
+
+        saveNewTitle() {
+            const index = this.state.editingIndex;
+            const newTitle = document.getElementById('editTitleInput').value.trim();
+
+            if (newTitle && index !== -1) {
+                this.state.playlist[index].title = newTitle;
+                this.saveStateToStorage();
+                this.renderPlaylist();
+
+                // Update UI jika lagu ini sedang diputar
+                if (index === this.state.currentTrackIndex) {
+                    this.updateTrackUI(this.state.playlist[index]);
+                }
+
+                this.showNotification('Judul berhasil diubah', 'success');
+                this.closeEditModal();
+            }
+        }
+
+        loadYouTubeAPI() {
+            if (window.YT && window.YT.Player) {
+                this.createYouTubePlayer();
+                return;
+            }
+
+            window.onYouTubeIframeAPIReady = () => this.createYouTubePlayer();
+
+            const tag = document.createElement('script');
+            tag.src = "https://www.youtube.com/iframe_api";
+            const firstScriptTag = document.getElementsByTagName('script')[0];
+            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+        }
+
+        createYouTubePlayer() {
+            this.youtubePlayer = new YT.Player('yt-player', {
+                height: '0',
+                width: '0',
+                playerVars: {
+                    'playsinline': 1,
+                    'controls': 0,
+                    'rel': 0,
+                    'modestbranding': 1,
+                    'iv_load_policy': 3
+                },
+                events: {
+                    'onReady': () => this.onPlayerReady(),
+                    'onStateChange': (event) => this.onPlayerStateChange(event)
+                }            });
+        }
+
+        onPlayerReady() {
+            this.state.playerReady = true;
+            this.youtubePlayer.setVolume(this.state.volume);
+            this.startProgressUpdate();
+            this.showNotification('Pemutar siap', 'success');
+        }
+
+        onPlayerStateChange(event) {
+            const playerStates = {
+                [-1]: 'unstarted',
+                [0]: 'ended',
+                [1]: 'playing',
+                [2]: 'paused',
+                [3]: 'buffering',
+                [5]: 'video cued'
+            };
+
+            const state = playerStates[event.data] || 'unknown';
+
+            if (state === 'playing') {
+                this.state.isPlaying = true;
+                this.updatePlayButtons(true);
+                this.showLoading(false);
+                if ('mediaSession' in navigator) navigator.mediaSession.playbackState = "playing";
+            } else if (state === 'paused') {
+                this.state.isPlaying = false;
+                this.updatePlayButtons(false);
+                this.showLoading(false);
+                if ('mediaSession' in navigator) navigator.mediaSession.playbackState = "paused";
+            } else if (state === 'ended') {
+                this.handleTrackEnd();
+            } else if (state === 'buffering') {
+                this.showLoading(true);
+            }
+        }
+
+        // =========================================
+        // PLAYBACK CONTROLS
+        // =========================================
+
+        playTrack(index) {
+            if (index < 0 || index >= this.state.playlist.length) return;
+
+            this.state.currentTrackIndex = index;
+            const track = this.state.playlist[index];
+
+            if (this.youtubePlayer && this.state.playerReady) {
+                try {
+                    this.youtubePlayer.loadVideoById(track.id);                    
+                    this.youtubePlayer.playVideo();
+                    this.updateTrackUI(track);
+                    this.updateMediaSession(track); 
+                    this.showNotification(`Memutar: ${track.title}`, 'success');
+                } catch (error) {
+                    console.error('Error playing track:', error);
+                    this.showNotification('Gagal memutar lagu', 'error');
+                    this.playNext();
+                }
+            }
+        }
+
+        togglePlay() {
+            if (!this.youtubePlayer || !this.state.playerReady) return;
+
+            if (this.state.isPlaying) {
+                this.youtubePlayer.pauseVideo();
+            } else {
+                if (this.state.currentTrackIndex === -1 && this.state.playlist.length > 0) {
+                    this.playTrack(0);
+                } else {
+                    this.youtubePlayer.playVideo();
+                }
+            }
+        }
+
+        playNext() {
+            if (this.state.playlist.length === 0) return;
+
+            if (this.state.repeatMode === 'one') {
+                this.playTrack(this.state.currentTrackIndex);
+                return;
+            }
+
+            let nextIndex;
+            if (this.state.isShuffle) {
+                nextIndex = this.getRandomTrackIndex();
+            } else {
+                nextIndex = this.state.currentTrackIndex + 1;
+            }
+
+            if (nextIndex >= this.state.playlist.length) {
+                if (this.state.repeatMode === 'all') {
+                    nextIndex = 0;
+                } else {
+                    this.state.isPlaying = false;
+                    this.updatePlayButtons(false);
+                    return;
+                }
+            }
+            this.playTrack(nextIndex);
+        }
+
+        playPrevious() {
+            if (this.state.playlist.length === 0) return;
+
+            const prevIndex = this.state.currentTrackIndex <= 0 ?
+                this.state.playlist.length - 1 :
+                this.state.currentTrackIndex - 1;
+
+            this.playTrack(prevIndex);
+        }
+
+        getRandomTrackIndex() {
+            if (this.state.playlist.length <= 1) return 0;
+
+            let randomIndex;
+            do {
+                randomIndex = Math.floor(Math.random() * this.state.playlist.length);
+            } while (randomIndex === this.state.currentTrackIndex && this.state.playlist.length > 1);
+
+            return randomIndex;
+        }
+
+        seekToPosition(event) {
+            if (!this.youtubePlayer || !this.state.playerReady) return;
+
+            const progressBar = event.currentTarget;
+            const rect = progressBar.getBoundingClientRect();
+            const clickPosition = (event.clientX - rect.left) / rect.width;
+
+            const duration = this.youtubePlayer.getDuration();
+            const seekTime = duration * clickPosition;
+
+            this.youtubePlayer.seekTo(seekTime, true);
+        }
+
+        adjustVolume(event) {
+            const slider = event.currentTarget;
+            const rect = slider.getBoundingClientRect();
+            const clickPosition = (event.clientX - rect.left) / rect.width;
+            const volume = Math.max(0, Math.min(100, Math.round(clickPosition * 100)));
+
+            this.state.volume = volume;
+            if (this.youtubePlayer) {
+                this.youtubePlayer.setVolume(volume);
+            }
+
+            this.updateVolumeUI();
+            this.saveStateToStorage();        }
+
+        toggleMute() {
+            if (!this.youtubePlayer) return;
+
+            const currentVolume = this.youtubePlayer.getVolume();
+            if (currentVolume > 0) {
+                this.youtubePlayer.setVolume(0);
+                this.showNotification('Volume dimatikan', 'warning');
+            } else {
+                this.youtubePlayer.setVolume(this.state.volume);
+                this.showNotification(`Volume: ${this.state.volume}%`, 'success');
+            }
+            this.updateVolumeUI();
+        }
+
+        // =========================================
+        // PLAYER MODES
+        // =========================================
+
+        toggleShuffle() {
+            this.state.isShuffle = !this.state.isShuffle;
+            this.updateControlButtons();
+            this.showNotification(
+                this.state.isShuffle ? 'Acak diaktifkan' : 'Acak dimatikan',
+                'success'
+            );
+        }
+
+        toggleRepeat() {
+            const modes = ['none', 'one', 'all'];
+            const currentIndex = modes.indexOf(this.state.repeatMode);
+            this.state.repeatMode = modes[(currentIndex + 1) % modes.length];
+
+            this.updateControlButtons();
+
+            const messages = {
+                'none': 'Repeat dimatikan',
+                'one': 'Repeat satu lagu',
+                'all': 'Repeat semua lagu'
+            };
+            this.showNotification(messages[this.state.repeatMode], 'success');
+        }
+
+        // =========================================
+        // PLAYLIST MANAGEMENT
+        // =========================================
+
+        async handleSearch(query) {
+            if (!query.trim()) return;
+            this.state.searchQuery = query;
+            this.showLoading(true);
+
+            try {
+                // Check if it's a YouTube URL
+                if (this.isYouTubeUrl(query)) {
+                    const videoId = this.extractYouTubeId(query);
+                    if (videoId) {
+                        await this.addYouTubeVideo(videoId);
+                    } else {
+                        throw new Error('Link YouTube tidak valid');
+                    }
+                } else {
+                    // Search YouTube (simulated for demo)
+                    await this.searchYouTube(query);
+                }
+            } catch (error) {
+                console.error('Search error:', error);
+                this.showNotification('Gagal mencari lagu', 'error');
+            } finally {
+                this.showLoading(false);
+                document.getElementById('searchInput').value = '';
+            }
+        }
+
+        isYouTubeUrl(url) {
+            const patterns = [
+                /youtube\.com\/watch\?v=([^&]+)/,
+                /youtu\.be\/([^?]+)/,
+                /youtube\.com\/embed\/([^?]+)/,
+                /youtube\.com\/v\/([^?]+)/
+            ];
+            return patterns.some(pattern => pattern.test(url));
+        }
+
+        extractYouTubeId(url) {
+            const patterns = [
+                /youtube\.com\/watch\?v=([^&]+)/,
+                /youtu\.be\/([^?]+)/,
+                /youtube\.com\/embed\/([^?]+)/,
+                /youtube\.com\/v\/([^?]+)/
+            ];
+
+            for (const pattern of patterns) {
+                const match = url.match(pattern);
+                if (match && match[1]) {
+                    return match[1];
+                }
+            }            return null;
+        }
+
+        async addYouTubeVideo(videoId) {
+            // In production, you would fetch video details from YouTube API
+            // For demo, we'll use placeholder data
+            const track = {
+                id: videoId,
+                title: `YouTube Video (${videoId})`,
+                artist: 'YouTube',
+                thumbnail: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
+                duration: '3:45'
+            };
+
+            this.addToPlaylist(track);
+            this.showNotification('Video YouTube ditambahkan', 'success');
+        }
+
+        async searchYouTube(query) {
+            // Simulated search results for demo
+            const mockResults = [{
+                    id: '5qap5aO4i9A',
+                    title: 'Lofi Hip Hop Radio',
+                    artist: 'Lofi Girl',
+                    thumbnail: 'https://img.youtube.com/vi/5qap5aO4i9A/hqdefault.jpg',
+                    duration: '∞'
+                },
+                {
+                    id: 'jfKfPfyJRdk',
+                    title: 'lofi hip hop radio',
+                    artist: 'Lofi Girl',
+                    thumbnail: 'https://img.youtube.com/vi/jfKfPfyJRdk/hqdefault.jpg',
+                    duration: '∞'
+                },
+                {
+                    id: 'DWcJFNfaw9c',
+                    title: 'Chillhop Music',
+                    artist: 'Chillhop Music',
+                    thumbnail: 'https://img.youtube.com/vi/DWcJFNfaw9c/hqdefault.jpg',
+                    duration: '∞'
+                }
+            ];
+
+            // Filter by query for demo purposes
+            const filteredResults = mockResults.filter(track =>
+                track.title.toLowerCase().includes(query.toLowerCase()) ||
+                track.artist.toLowerCase().includes(query.toLowerCase())
+            );
+
+            if (filteredResults.length > 0) {                
+                this.addToPlaylist(filteredResults[0]);
+                this.showNotification(`"${filteredResults[0].title}" ditambahkan`, 'success');
+            } else {
+                this.showNotification('Tidak ditemukan hasil untuk pencarian ini', 'warning');
+            }
+        }
+
+        addToPlaylist(track) {
+            // Check for duplicates
+            const isDuplicate = this.state.playlist.some(t => t.id === track.id);
+            if (isDuplicate) {
+                this.showNotification('Lagu sudah ada dalam playlist', 'warning');
+                return;
+            }
+
+            this.state.playlist.push(track);
+            this.saveStateToStorage();
+            this.renderPlaylist();
+
+            // Show mini player if first track
+            if (this.state.playlist.length === 1) {
+                document.getElementById('miniPlayer').classList.remove('hidden');
+            }
+
+            // Auto-play if no track is playing
+            if (this.state.currentTrackIndex === -1) {
+                this.playTrack(0);
+            }
+        }
+
+        removeFromPlaylist(index) {
+            if (index < 0 || index >= this.state.playlist.length) return;
+
+            const removedTrack = this.state.playlist[index];
+            this.state.playlist.splice(index, 1);
+
+            // Adjust current track index if needed
+            if (this.state.currentTrackIndex === index) {
+                if (this.state.playlist.length > 0) {
+                    this.playTrack(Math.min(index, this.state.playlist.length - 1));
+                } else {
+                    this.state.currentTrackIndex = -1;
+                    this.updateTrackUI(null);
+                }
+            } else if (this.state.currentTrackIndex > index) {
+                this.state.currentTrackIndex--;
+            }
+
+            this.saveStateToStorage();
+            this.renderPlaylist();
+            if (this.state.playlist.length === 0) {
+                document.getElementById('miniPlayer').classList.add('hidden');
+            }
+
+            this.showNotification(`"${removedTrack.title}" dihapus`, 'success');
+        }
+
+        clearPlaylist() {
+            if (this.state.playlist.length === 0) return;
+
+            if (confirm('Apakah Anda yakin ingin menghapus semua lagu dari playlist?')) {
+                this.state.playlist = [];
+                this.state.currentTrackIndex = -1;
+                this.saveStateToStorage();
+                this.renderPlaylist();
+
+                document.getElementById('miniPlayer').classList.add('hidden');
+
+                if (this.youtubePlayer && this.state.playerReady) {
+                    this.youtubePlayer.stopVideo();
+                }
+
+                this.showNotification('Playlist berhasil dikosongkan', 'success');
+            }
+        }
+
+        // =========================================
+        // UI UPDATES
+        // =========================================
+
+        renderPlaylist() {
+            const container = document.getElementById('playlistContainer');
+            const emptyState = document.getElementById('emptyState');
+
+            container.innerHTML = '';
+
+            if (this.state.playlist.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+
+            this.state.playlist.forEach((track, index) => {
+                const trackElement = document.createElement('div');
+                trackElement.className = `track-item ${index === this.state.currentTrackIndex ? 'active' : ''}`;
+                trackElement.innerHTML = `
+                    <div class="track-thumb">
+                        <img src="${track.thumbnail || ''}" alt="${track.title}"                              onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <i class="ph-duotone ph-music-notes fallback-icon" style="display: ${track.thumbnail ? 'none' : 'block'};"></i>
+                    </div>
+                    <div class="track-info">
+                        <div class="track-title truncate">${track.title}</div>
+                        <div class="track-artist truncate">${track.artist}</div>
+                    </div>
+                    <div class="track-duration">${track.duration || '--:--'}</div>
+                    <div class="track-actions">
+                        <button class="icon-btn" onclick="event.stopPropagation(); app.openEditModal(${index})" 
+        aria-label="Edit title" style="color: var(--c-primary);">
+                            <i class="ph ph-pencil-simple"></i>
+                        </button>
+                        <button class="icon-btn" onclick="event.stopPropagation(); app.removeFromPlaylist(${index})" 
+            aria-label="Remove from playlist">
+                            <i class="ph ph-trash"></i>
+                        </button>
+                    </div>
+                `;
+
+                trackElement.addEventListener('click', (e) => {
+                    if (!e.target.closest('.track-actions')) {
+                        this.playTrack(index);
+                    }
+                });
+
+                container.appendChild(trackElement);
+            });
+        }
+
+        updateTrackUI(track) {
+            if (!track) {
+                document.getElementById('miniTitle').textContent = 'Tidak ada lagu';
+                document.getElementById('miniArtist').textContent = 'Pilih musik untuk memulai';
+                document.getElementById('modalTitle').textContent = '...';
+                document.getElementById('modalArtist').textContent = '...';
+
+                // Reset thumbnails
+                document.getElementById('miniThumbImg').style.display = 'none';
+                document.querySelector('#miniThumb .fallback-icon').style.display = 'block';
+                document.getElementById('albumArtImg').style.display = 'none';
+                document.querySelector('.album-art-fallback').style.display = 'block';
+
+                return;
+            }
+
+            // Mini player
+            document.getElementById('miniTitle').textContent = track.title || 'Unknown Title';
+            document.getElementById('miniArtist').textContent = track.artist || 'Unknown Artist';
+            // Modal player
+            document.getElementById('modalTitle').textContent = track.title || 'Unknown Title';
+            document.getElementById('modalArtist').textContent = track.artist || 'Unknown Artist';
+
+            // Handle thumbnails
+            const miniThumbImg = document.getElementById('miniThumbImg');
+            const miniFallback = document.querySelector('#miniThumb .fallback-icon');
+            const albumArtImg = document.getElementById('albumArtImg');
+            const albumArtFallback = document.querySelector('.album-art-fallback');
+
+            // Update mini player thumbnail
+            if (track.thumbnail) {
+                miniThumbImg.src = track.thumbnail;
+                miniThumbImg.style.display = 'block';
+                miniFallback.style.display = 'none';
+
+                miniThumbImg.onerror = () => {
+                    miniThumbImg.style.display = 'none';
+                    miniFallback.style.display = 'block';
+                };
+            } else {
+                miniThumbImg.style.display = 'none';
+                miniFallback.style.display = 'block';
+            }
+
+            // Update modal player thumbnail
+            if (track.thumbnail && typeof track.thumbnail === 'string') {
+                // Fix the replace error - check if thumbnail is a string and contains 'hqdefault'
+                let thumbnailUrl = track.thumbnail;
+                if (thumbnailUrl.includes('hqdefault')) {
+                    thumbnailUrl = thumbnailUrl.replace('hqdefault', 'maxresdefault');
+                }
+                albumArtImg.src = thumbnailUrl;
+                albumArtImg.style.display = 'block';
+                albumArtFallback.style.display = 'none';
+
+                albumArtImg.onerror = () => {
+                    albumArtImg.style.display = 'none';
+                    albumArtFallback.style.display = 'block';
+                };
+            } else {
+                albumArtImg.style.display = 'none';
+                albumArtFallback.style.display = 'block';
+            }
+
+            this.renderPlaylist();
+        }
+
+        updatePlayButtons(isPlaying) {
+            const playIcon = document.getElementById('playIcon');            
+            const miniPlayIcon = document.getElementById('miniPlayIcon');
+            const miniThumb = document.getElementById('miniThumb');
+
+            if (isPlaying) {
+                playIcon.className = 'ph ph-pause';
+                miniPlayIcon.className = 'ph ph-pause';
+                miniThumb.classList.add('playing');
+            } else {
+                playIcon.className = 'ph ph-play';
+                miniPlayIcon.className = 'ph ph-play';
+                miniThumb.classList.remove('playing');
+            }
+        }
+
+        updateControlButtons() {
+            const shuffleBtn = document.getElementById('shuffleBtn');
+            const repeatBtn = document.getElementById('repeatBtn');
+            const repeatIcon = document.getElementById('repeatIcon');
+
+            // Shuffle button
+            if (this.state.isShuffle) {
+                shuffleBtn.classList.add('active');
+            } else {
+                shuffleBtn.classList.remove('active');
+            }
+
+            // Repeat button
+            repeatBtn.classList.toggle('active', this.state.repeatMode !== 'none');
+
+            switch (this.state.repeatMode) {
+                case 'one':
+                    repeatIcon.className = 'ph ph-repeat-once';
+                    break;
+                case 'all':
+                    repeatIcon.className = 'ph ph-repeat';
+                    break;
+                default:
+                    repeatIcon.className = 'ph ph-repeat';
+            }
+        }
+
+        updateVolumeUI() {
+            const volumePercent = this.state.volume;
+
+            // Update Slider di Modal
+            const modalFill = document.getElementById('volumeFill');
+            if (modalFill) modalFill.style.width = `${volumePercent}%`;
+
+            // Update Slider di Header Popover
+            const headerFill = document.getElementById('headerVolumeFill');            
+            const headerText = document.getElementById('headerVolumeText');
+            const headerIcon = document.getElementById('headerVolumeIcon');
+
+            if (headerFill) headerFill.style.width = `${volumePercent}%`;
+            if (headerText) headerText.textContent = `${volumePercent}%`;
+
+            // Ganti Icon berdasarkan level volume
+            if (headerIcon) {
+                if (volumePercent === 0) headerIcon.className = "ph-duotone ph-speaker-simple-slash";
+                else if (volumePercent < 30) headerIcon.className = "ph-duotone ph-speaker-simple-none";
+                else if (volumePercent < 70) headerIcon.className = "ph-duotone ph-speaker-simple-low";
+                else headerIcon.className = "ph-duotone ph-speaker-simple-high";
+            }
+        }
+
+        updateProgress() {
+            if (!this.youtubePlayer || !this.state.playerReady) return;
+
+            try {
+                const currentTime = this.youtubePlayer.getCurrentTime();
+                const duration = this.youtubePlayer.getDuration();
+
+                if (duration > 0) {
+                    const progressPercent = (currentTime / duration) * 100;
+                    const progressFill = document.getElementById('progressFill');
+
+                    if (progressFill) {
+                        progressFill.style.width = `${progressPercent}%`;
+                    }
+
+                    // Update time displays
+                    document.getElementById('currentTime').textContent = this.formatTime(currentTime);
+                    document.getElementById('totalTime').textContent = this.formatTime(duration);
+                }
+            } catch (error) {
+                console.error('Error updating progress:', error);
+            }
+        }
+
+        startProgressUpdate() {
+            // Clear existing interval
+            if (this.progressInterval) {
+                clearInterval(this.progressInterval);
+            }
+
+            this.progressInterval = setInterval(() => this.updateProgress(), 1000);
+        }
+
+        // =========================================
+        // MODAL CONTROLS        
+        // =========================================
+
+        openPlayerModal() {
+            if (this.state.currentTrackIndex === -1) return;
+
+            const modal = document.getElementById('playerModal');
+            modal.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        closePlayerModal() {
+            const modal = document.getElementById('playerModal');
+            modal.classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        // =========================================
+        // UTILITIES
+        // =========================================
+
+        formatTime(seconds) {
+            if (!seconds || seconds === Infinity) return '0:00';
+
+            const minutes = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+
+        toggleTheme() {
+            this.state.isDark = !this.state.isDark;
+            document.documentElement.setAttribute('data-theme', this.state.isDark ? 'dark' : 'light');
+            localStorage.setItem('arkeologi_theme', this.state.isDark ? 'dark' : 'light');
+
+            const themeIcon = document.querySelector('#themeToggle i');
+            themeIcon.className = this.state.isDark ? 'ph ph-sun' : 'ph ph-moon';
+
+            this.showNotification(
+                this.state.isDark ? 'Mode gelap diaktifkan' : 'Mode terang diaktifkan',
+                'success'
+            );
+        }
+
+        showLoading(show) {
+            const loadingElement = document.getElementById('loadingState');
+            if (show) {
+                loadingElement.classList.remove('hidden');
+            } else {
+                loadingElement.classList.add('hidden');
+            }
+        }
+        showNotification(message, type = 'success') {
+            const container = document.getElementById('notificationContainer');
+
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+
+            container.appendChild(notification);
+
+            // Trigger animation
+            setTimeout(() => notification.classList.add('show'), 10);
+
+            // Remove after delay
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        updateUI() {
+            this.updateControlButtons();
+            this.updateVolumeUI();
+
+            if (this.state.currentTrackIndex >= 0 && this.state.currentTrackIndex < this.state.playlist.length) {
+                const track = this.state.playlist[this.state.currentTrackIndex];
+                this.updateTrackUI(track);
+            }
+        }
+
+        handleTrackEnd() {
+            switch (this.state.repeatMode) {
+                case 'one':
+                    this.playTrack(this.state.currentTrackIndex);
+                    break;
+                case 'all':
+                    this.playNext();
+                    break;
+                default:
+                    if (this.state.currentTrackIndex < this.state.playlist.length - 1) {
+                        this.playNext();
+                    } else {
+                        this.state.isPlaying = false;
+                        this.updatePlayButtons(false);
+                    }
+            }
+        }
+ 
+updateMediaSession(track) {
+    if ('mediaSession' in navigator) {
+        // 1. Set Informasi Lagu (Metadata)
+        navigator.mediaSession.metadata = new MediaMetadata({
+            title: track.title,
+            artist: track.artist,
+            album: "Raa's PlayList",
+            artwork: [
+                { src: track.thumbnail || '', sizes: '96x96',   type: 'image/jpg' },
+                { src: track.thumbnail || '', sizes: '128x128', type: 'image/jpg' },
+                { src: track.thumbnail || '', sizes: '192x192', type: 'image/jpg' },
+                { src: track.thumbnail || '', sizes: '512x512', type: 'image/jpg' },
+            ]
+        });
+
+        // 2. Set Kontrol Tombol (Action Handlers)
+        navigator.mediaSession.setActionHandler('play', () => {
+            this.togglePlay();
+            navigator.mediaSession.playbackState = "playing";
+        });
+        
+        navigator.mediaSession.setActionHandler('pause', () => {
+            this.togglePlay();
+            navigator.mediaSession.playbackState = "paused";
+        });
+
+        navigator.mediaSession.setActionHandler('previoustrack', () => {
+            this.playPrevious();
+        });
+
+        navigator.mediaSession.setActionHandler('nexttrack', () => {
+            this.playNext();
+        });
+
+        // Opsional: Support untuk seek (maju/mundur)
+        navigator.mediaSession.setActionHandler('seekbackward', () => {
+            const currentTime = this.youtubePlayer.getCurrentTime();
+            this.youtubePlayer.seekTo(Math.max(currentTime - 10, 0), true);
+        });
+
+        navigator.mediaSession.setActionHandler('seekforward', () => {
+            const currentTime = this.youtubePlayer.getCurrentTime();
+            this.youtubePlayer.seekTo(currentTime + 10, true);
+        });
+    }
+}
+      
+    }
+
+    // =========================================    
+    // INITIALIZE APPLICATION
+    // =========================================
+
+    let app;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        app = new ArkeologiApp();
+
+        // Make app globally available for onclick handlers
+        window.app = app;
+    });
+
+    // Global helper functions for inline event handlers
+    window.removeFromPlaylist = (index) => app.removeFromPlaylist(index);
+    window.openPlayerModal = () => app.openPlayerModal();
+    window.closePlayerModal = () => app.closePlayerModal();
+    window.togglePlay = () => app.togglePlay();
+    window.playNext = () => app.playNext();
+    window.playPrevious = () => app.playPrevious();
+    window.toggleShuffle = () => app.toggleShuffle();
+    window.toggleRepeat = () => app.toggleRepeat();
+    window.toggleTheme = () => app.toggleTheme();
+    window.clearPlaylist = () => app.clearPlaylist();
+    window.editTrackTitle = (index) => app.editTrackTitle(index);
+</script>
+</body>
+
+</html>
