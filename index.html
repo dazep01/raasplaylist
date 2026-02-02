@@ -21,6 +21,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
+    <link rel="manifest" href="manifest.json">
+
     <style>
         /* =========================================
            iOS NATIVE REDESIGN - Olive Pastel Theme
@@ -1203,6 +1205,15 @@
                 </button>
             </div>
 
+            <div class="section-header">
+                <h2 class="section-title">Folder Playlist</h2>
+                <button class="section-action" id="addFolderBtn" style="color: var(--c-primary);">
+                    <i class="ph ph-folder-plus"></i> Folder Baru
+                </button>
+            </div>
+            <div id="folderContainer" class="flex" style="gap: 12px; padding: 0 20px 20px; overflow-x: auto;">
+            </div>
+
             <!-- Playlist Section -->
             <div class="section-header">
                 <h2 class="section-title">Daftar Putar</h2>
@@ -1264,6 +1275,25 @@
                 <div class="album-art-container">
                     <img src="" alt="" class="album-art" id="albumArtImg">
                     <i class="ph-duotone ph-music-notes album-art-fallback"></i>
+                </div>
+
+                <div class="flex justify-center" style="gap: 20px; margin-bottom: 20px;">
+                    <button class="text-sm font-bold" id="showArtBtn" style="color: var(--c-primary); border-bottom: 2px solid var(--c-primary);">Cover</button>
+                    <button class="text-sm font-bold" id="showLyricsBtn" style="color: var(--text-tertiary); border: none; background: none;">Lirik</button>
+                </div>
+
+                <div id="lyricsContainer" class="hidden" style="text-align: center; height: 350px; display: flex; flex-direction: column;">
+                    <div class="flex justify-center gap-2" style="margin-bottom: 15px;">
+                        <button id="editLyricsBtn" class="text-xs font-semibold" style="padding: 5px 12px; border-radius: 12px; background: var(--c-primary-ultralight); color: var(--c-primary); border: none; cursor: pointer;">
+                            <i class="ph ph-pencil-simple"></i> Edit Lirik Manual
+                        </button>
+                    </div>
+
+                    <div id="lyricsScrollArea" style="flex: 1; overflow-y: auto; padding: 0 10px; line-height: 2;">
+                        <p id="lyricsText" style="font-size: 18px; color: var(--text-primary); white-space: pre-wrap; transition: all 0.3s;">
+            Mencari lirik...
+                        </p>
+                    </div>
                 </div>
 
                 <!-- Track Info -->
@@ -1337,7 +1367,25 @@
         <!-- Notification Container -->
         <div id="notificationContainer"></div>
     </div>
-  
+
+<div id="lyricsEditModal" class="player-modal" style="height: 80vh; bottom: 0; top: auto; border-radius: 28px 28px 0 0; z-index: 3000;">
+    <div class="modal-header">
+        <div class="modal-title">Edit Lirik Manual</div>
+        <button class="icon-btn modal-close" id="closeLyricsModalBtn">
+            <i class="ph ph-x"></i>
+        </button>
+    </div>
+    <div class="modal-content" style="padding: 20px;">
+        <textarea id="manualLyricsInput" 
+            style="width: 100%; height: 60%; background: var(--bg-base); border: 1.5px solid var(--border); border-radius: 18px; padding: 15px; color: var(--text-primary); font-family: inherit; font-size: 16px; outline: none; resize: none;" 
+            placeholder="Tempelkan lirik di sini..."></textarea>
+        
+        <button class="control-btn" id="saveLyricsBtn" style="width: 100%; margin-top: 20px; background: var(--c-primary); color: white; border-radius: 18px;">
+            Simpan Lirik
+        </button>
+    </div>
+</div>
+
 <script>
     // =========================================
     // CORE APPLICATION - MODULAR ARCHITECTURE
@@ -1346,6 +1394,8 @@
     class ArkeologiApp {
         constructor() {
             this.state = {
+                folders: [{ name: 'Default', tracks: [] }], // Folder awal
+                currentFolderIndex: 0,
                 playlist: [],
                 currentTrackIndex: -1,
                 editingIndex: -1,
@@ -2322,7 +2372,60 @@ updateMediaSession(track) {
         });
     }
 }
-      
+
+// Modifikasi fungsi fetchLyrics
+async fetchLyrics(artist, title) {
+    const track = this.state.playlist[this.state.currentTrackIndex];
+    const lyricsDisplay = document.getElementById('lyricsText');
+
+    // 1. Cek apakah sudah ada lirik manual yang disimpan
+    if (track.manualLyrics) {
+        lyricsDisplay.textContent = track.manualLyrics;
+        return;
+    }
+
+    // 2. Jika tidak ada, baru cari otomatis
+    lyricsDisplay.textContent = "Mencari lirik otomatis...";
+    try {
+        const response = await fetch(`https://api.lyrics.ovh/v1/${artist}/${title}`);
+        const data = await response.json();
+        lyricsDisplay.textContent = data.lyrics || "Lirik tidak ditemukan. Klik 'Edit Lirik Manual' untuk menambahkan.";
+    } catch (error) {
+        lyricsDisplay.textContent = "Gagal memuat otomatis. Yuk, tambahkan manual!";
+    }
+}
+
+// Tambahkan Handler Baru di initEventListeners()
+initLyricsHandlers() {
+    const lyricsModal = document.getElementById('lyricsEditModal');
+    const lyricsInput = document.getElementById('manualLyricsInput');
+
+    document.getElementById('editLyricsBtn').addEventListener('click', () => {
+        const track = this.state.playlist[this.state.currentTrackIndex];
+        lyricsInput.value = track.manualLyrics || ""; // Isi dengan lirik yang sudah ada jika ada
+        lyricsModal.classList.add('open');
+    });
+
+    document.getElementById('closeLyricsModalBtn').addEventListener('click', () => {
+        lyricsModal.classList.remove('open');
+    });
+
+    document.getElementById('saveLyricsBtn').addEventListener('click', () => {
+        const index = this.state.currentTrackIndex;
+        if (index !== -1) {
+            // Simpan ke state
+            this.state.playlist[index].manualLyrics = lyricsInput.value;
+            // Simpan ke localStorage
+            this.saveStateToStorage();
+            // Update tampilan langsung
+            document.getElementById('lyricsText').textContent = lyricsInput.value || "Lirik dihapus.";
+            
+            this.showNotification('Lirik berhasil disimpan!', 'success');
+            lyricsModal.classList.remove('open');
+        }
+    });
+}
+
     }
 
     // =========================================    
@@ -2350,6 +2453,14 @@ updateMediaSession(track) {
     window.toggleTheme = () => app.toggleTheme();
     window.clearPlaylist = () => app.clearPlaylist();
     window.editTrackTitle = (index) => app.editTrackTitle(index);
+
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+            .then(reg => console.log('Service Worker terdaftar!', reg))
+            .catch(err => console.log('Gagal daftar Service Worker', err));
+    });
+}
 </script>
 </body>
 
