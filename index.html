@@ -1265,6 +1265,9 @@
                             <div style="text-align: center; font-size: 12px; margin-top: 8px; color: var(--text-secondary); font-weight: 600;" id="headerVolumeText">70%</div>
                         </div>
                     </div>
+                    <button class="action-btn" id="bgPlayBtn" style="background: var(--c-primary); color: white; padding: 12px; border-radius: 12px; border: none; font-weight: bold; width: 100%; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        <i class="ph ph-monitor-play"></i>
+                    </button>
                 </div>
             </div>
         </header>
@@ -1499,6 +1502,9 @@
             this.youtubePlayer = null;
             this.progressInterval = null;
             this.init();
+
+            this.silence = new Audio('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=');
+            this.silence.loop = true;
         }
 
         async init() {
@@ -1803,6 +1809,7 @@
                 try {
                     this.youtubePlayer.loadVideoById(track.id);                    
                     this.youtubePlayer.playVideo();
+                    silence.play();
                     this.updateTrackUI(track);
                     this.updateMediaSession(track); 
                     this.showNotification(`Memutar: ${track.title}`, 'success');
@@ -1824,6 +1831,7 @@
                     this.playTrack(0);
                 } else {
                     this.youtubePlayer.playVideo();
+                    silence.play();
                 }
             }
         }
@@ -1864,6 +1872,36 @@
 
             this.playTrack(prevIndex);
         }
+        
+initBackgroundPlay() {
+    const bgBtn = document.getElementById('bgPlayBtn');
+    
+    bgBtn.addEventListener('click', async () => {
+        this.showNotification("Mengaktifkan mode latar belakang...", "info");
+        
+        // 1. Aktifkan WakeLock agar layar tidak mati total jika tidak perlu
+        await this.requestWakeLock();
+        
+        // 2. Pastikan MediaSession terisi dengan metadata lagu saat ini
+        if ('mediaSession' in navigator) {
+            this.updateMediaSession();
+        }
+
+        // 3. Trik: Gunakan Fullscreen API lalu keluar (beberapa browser akan menjaga status)
+        // Atau cara termudah: Informasikan user untuk tekan tombol HOME
+        
+        const isPWA = window.matchMedia('(display-mode: standalone)').matches;
+        
+        if (isPWA) {
+            this.showNotification("Silakan tekan tombol HOME ponsel Anda. Musik akan tetap diputar.", "success");
+        } else {
+            alert("Mode Latar Aktif: Sekarang Anda bisa menekan tombol Home atau membuka aplikasi lain.");
+        }
+        
+        // Memicu getaran kecil sebagai feedback (hanya Android)
+        if (navigator.vibrate) navigator.vibrate(50);
+    });
+}
 
         getRandomTrackIndex() {
             if (this.state.playlist.length <= 1) return 0;
