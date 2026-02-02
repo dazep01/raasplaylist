@@ -1,0 +1,23 @@
+{
+  "name": "Raa's PlayList",
+  "short_name": "RaaPlayer",
+  "description": "Aplikasi pemutar musik modern berbasis YouTube",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#F8F9F7",
+  "theme_color": "#9CAF88",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://cdn3d.iconscout.com/3d/premium/thumb/music-player-3d-icon-png-download-5576207.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://cdn3d.iconscout.com/3d/premium/thumb/music-player-3d-icon-png-download-5576207.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}
